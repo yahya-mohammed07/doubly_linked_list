@@ -540,6 +540,7 @@ public:
     ++m_size;
   }
 
+  /// @brief pop certain value from list
   constexpr
   auto pop_value(T&& val)
       -> void
@@ -557,26 +558,6 @@ public:
       ++count;
       ++it;
     }
-  }
-
-
-  [[deprecated]]
-  constexpr auto 
-  push_after(T&& after, T&& val)
-      -> void
-  {
-    if (is_empty()) [[unlikely]] { empty_list(); return;}
-    if (after == at(m_tail)) { push_back(val); }
-    sh_ptr it = {m_head};
-    for(; it->m_next != nullptr && at(it) != after; it = it->m_next) {}
-    if (!it->m_next) { std::cerr << "- `pos` not found..."; return;}
-    //
-    sh_ptr new_node = allocate_node();
-    new_node->m_data = val; // add data to new_node
-    new_node->m_next = it->m_next; // new_node's next now points at what it's next it
-    it->m_next = new_node; // it's next points to new_node
-    //
-    ++m_size;
   }
 
   /**
@@ -676,6 +657,7 @@ public:
     mid = nullptr; // 1 -> nullptr
   }
 
+  /// @brief pops duplicates from the list 
   constexpr
   auto pop_duplicates()
       -> void
