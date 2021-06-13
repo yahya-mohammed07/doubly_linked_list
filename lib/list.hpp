@@ -87,6 +87,7 @@ public:
   [[nodiscard]] constexpr auto rend()    const noexcept -> iterator { return iterator(m_head->m_prev); }
   [[nodiscard]] constexpr auto rbegin()  noexcept -> iterator { return iterator(m_tail); }
   [[nodiscard]] constexpr auto rend()    noexcept -> iterator { return iterator(m_head->m_prev); }
+
   /* constructors */
   List_() noexcept = default;
   //
@@ -218,7 +219,12 @@ public:
     return m_tail->m_data;
   }
 
-  //
+  /**
+   * @brief prints the list in both `forward and backword`
+   * 
+   * @param order `true` for forward `false` for backword  
+   * @param delimiter
+   */
   constexpr
   auto print(const bool order = true, const char delimiter = ' ')
       const -> void
