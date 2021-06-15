@@ -526,7 +526,6 @@ public:
   * @param after : the value you want add value after it
   * @param val : the value
   */
-  [[deprecated]]
   constexpr
   auto push_after(const T& after, const T& val) 
       -> void
@@ -534,7 +533,7 @@ public:
     if (is_empty()) { empty_list(); return;}
     if (after == at(m_tail)) { push_back(val); }
     sh_ptr it = {m_head};
-    for(; at(it) != after; it = it->m_next) {}
+    for( ; at(it) != after; it = it->m_next ) {}
     if (!it->m_next) { std::cerr << "- `pos` not found..."; return;}
     //
     sh_ptr new_node = allocate_node();
@@ -542,10 +541,45 @@ public:
     /// @link:
     new_node->m_next = it->m_next; // new_node's next now points at what it's next it
     it->m_next = new_node; // it's next points to new_node
+    new_node->m_prev = it;
     //
+    if (new_node->m_next != nullptr) {
+      new_node->m_next->m_prev = new_node;
+    }
     ++m_size;
   }
 
+
+  /**
+  * @brief adds value before specific location
+  * @param before : the value you want add value before it
+  * @param val : the value
+  */
+  constexpr
+  auto push_before(const T& before, const T& val) 
+      -> void
+  {
+    if (is_empty()) { empty_list(); return;}
+    if (before == at(m_tail)) { push_back(val); }
+    sh_ptr it = {m_head};
+    for( ; at(it) != before; it = it->m_next ) {}
+    if (!it->m_next) { std::cerr << "- `pos` not found..."; return;}
+    //
+    sh_ptr new_node = allocate_node();
+    new_node->m_data = val; // add data to new_node
+    /// @link:
+    new_node->m_prev = it->m_prev;
+    it->m_prev = new_node;
+    new_node->m_next = it; // new_node's next now points to `it`
+    //
+    if (new_node->m_prev != nullptr) {
+      new_node->m_prev->m_next = new_node;
+    } else {
+      m_head = new_node;
+    }
+    //
+    ++m_size;
+  }
   /// @brief pop certain value from list
   constexpr
   auto pop_value(T&& val)
