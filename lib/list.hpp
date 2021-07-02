@@ -549,7 +549,6 @@ public:
     ++m_size;
   }
 
-
   /**
   * @brief adds value before specific location
   * @param before : the value you want add value before it
@@ -643,7 +642,8 @@ public:
   * @brief remove element at given position
   * @complexity O(n)
   */
-  auto pop_at(const std::size_t pos)
+  constexpr
+  auto pop_at(const std::size_t& pos)
       -> void
   {
     const std::size_t s = size();
@@ -672,6 +672,7 @@ public:
   * @brief remove element at given position
   * @complexity O(n)
   */
+  constexpr
   auto pop_at(std::size_t&& pos)
       -> void
   {
