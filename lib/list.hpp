@@ -52,8 +52,8 @@ private:
     constexpr iterator(sh_ptr&& newPtr)  : node_ptr(newPtr) {}
     constexpr iterator(const std::nullptr_t newPtr) : node_ptr(newPtr) {}
     //
-    constexpr bool operator!=(const iterator& itr) const {
-      return node_ptr != itr.node_ptr;
+    constexpr bool operator!=(const iterator& rhs) const {
+      return node_ptr != rhs.node_ptr;
     }
     //
     constexpr T& operator*() const {
@@ -91,21 +91,21 @@ public:
   /* constructors */
   List_() noexcept = default;
   //
-  explicit constexpr List_(List_<T> && lh) noexcept
+  explicit constexpr List_(List_<T> && rhs) noexcept
     : m_head(nullptr), m_tail(nullptr), m_size(0) {
-    m_head = lh.m_head;
-    m_tail = lh.m_tail;
-    m_size = lh.m_size;
+    m_head = rhs.m_head;
+    m_tail = rhs.m_tail;
+    m_size = rhs.m_size;
     //
-    lh.m_tail.reset();
-    lh.m_head.reset();
-    lh.m_size = {};
+    rhs.m_tail.reset();
+    rhs.m_head.reset();
+    rhs.m_size = {};
   }
   //
-  explicit constexpr List_(const List_<T>& lh) noexcept {
-    m_head = lh.m_head;
-    m_tail = lh.m_tail;
-    m_size = lh.m_size;
+  explicit constexpr List_(const List_<T>& rhs) noexcept {
+    m_head = rhs.m_head;
+    m_tail = rhs.m_tail;
+    m_size = rhs.m_size;
   }
 
   //
@@ -131,25 +131,25 @@ public:
   }
 
   //
-  constexpr List_<T>& operator=(const List_<T>& lh) noexcept {
-    if (this != &lh) {
-      m_head = lh.m_head;
-      m_tail = lh.m_tail;
-      m_size = lh.m_size;
+  constexpr List_<T>& operator=(const List_<T>& rhs) noexcept {
+    if (this != &rhs) {
+      m_head = rhs.m_head;
+      m_tail = rhs.m_tail;
+      m_size = rhs.m_size;
     }
     return *this;
   }
 
   //
-  constexpr List_<T>& operator=(List_<T>&& lh) noexcept {
-    if (this != &lh) {
-      m_head = lh.m_head;
-      m_tail = lh.m_tail;
-      m_size = lh.m_size;
+  constexpr List_<T>& operator=(List_<T>&& rhs) noexcept {
+    if (this != &rhs) {
+      m_head = rhs.m_head;
+      m_tail = rhs.m_tail;
+      m_size = rhs.m_size;
       //
-      lh.m_tail = {nullptr};
-      lh.m_head = {nullptr};
-      lh.m_size = {};
+      rhs.m_tail = {nullptr};
+      rhs.m_head = {nullptr};
+      rhs.m_size = {};
     }
     return *this;
   }
@@ -161,7 +161,7 @@ public:
   * @return true
   * @return false
   */
-  [[nodiscard]] constexpr inline auto is_empty()
+  [[nodiscard]] constexpr auto is_empty()
       const noexcept -> bool
   {
     return m_head == nullptr ? true : false;
@@ -173,7 +173,7 @@ public:
   * @return std::size_t
   */
   [[nodiscard]]
-  constexpr inline
+  constexpr
   auto size() const noexcept 
       -> std::size_t { return m_size; }
 
@@ -183,7 +183,7 @@ public:
   * @return T&
   */
   [[nodiscard]]
-  constexpr inline
+  constexpr
   auto front()
       -> T &
   {
@@ -197,7 +197,7 @@ public:
   * @return T&
   */
   [[nodiscard]]
-  constexpr inline
+  constexpr 
   auto back()
       -> T &
   {
@@ -211,7 +211,7 @@ public:
   * @return T&
   */
   [[nodiscard]]
-  constexpr inline
+  constexpr 
   auto back() const
       -> T
   {
@@ -272,7 +272,7 @@ public:
   }
 
   [[nodiscard]]
-  constexpr inline
+  constexpr
   auto at(const sh_ptr& ptr)
       const -> auto &
   {
@@ -341,7 +341,7 @@ public:
 
   //
   template<typename ...args>
-  inline constexpr auto push_back(const args&...arg)
+  constexpr auto push_back(const args&...arg)
       -> void
   {
     (push_back(arg),...);
@@ -352,7 +352,7 @@ public:
   * @complexity O(1)
   * @param arg
   */
-  inline constexpr 
+   constexpr 
   auto push_front(const T &arg) 
       -> void
   {
@@ -372,7 +372,7 @@ public:
   * @complexity O(1)
   * @param arg
   */
-  inline constexpr
+  constexpr
   auto push_front(T &&arg)
       -> void
   {
@@ -388,7 +388,7 @@ public:
   }
 
   //
-  inline constexpr
+  constexpr
   auto push_front(const auto& ...arg)
       -> void
   {
