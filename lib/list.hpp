@@ -64,7 +64,7 @@ private:
       node_ptr = node_ptr->m_next;
       return *this;
     }
-    // pre increment
+    // pre decrement
     constexpr iterator operator--() {
       node_ptr = node_ptr->m_prev;
       return *this;
@@ -84,9 +84,9 @@ public:
   [[nodiscard]] constexpr auto end()   noexcept -> iterator { return iterator(nullptr); }
   //
   [[nodiscard]] constexpr auto rbegin()  const noexcept -> iterator { return iterator(m_tail); }
-  [[nodiscard]] constexpr auto rend()    const noexcept -> iterator { return iterator(m_head->m_prev); }
+  [[nodiscard]] constexpr auto rend()    const noexcept -> iterator { return iterator(nullptr); }
   [[nodiscard]] constexpr auto rbegin()  noexcept -> iterator { return iterator(m_tail); }
-  [[nodiscard]] constexpr auto rend()    noexcept -> iterator { return iterator(m_head->m_prev); }
+  [[nodiscard]] constexpr auto rend()    noexcept -> iterator { return iterator(nullptr); }
 
   /* constructors */
   List_() noexcept = default;
@@ -230,7 +230,7 @@ public:
       const -> void
   {
     if (is_empty()) [[unlikely]]  { empty_list(); return; }
-    if ( order ) {
+            if ( order ) {
       for ( auto&& i : *this ) { std::cout << i << ' '; }
       std::cout << delimiter;
       return;
@@ -249,25 +249,25 @@ public:
   */
   [[nodiscard]]
   constexpr 
-  auto at(const T& times)
+  auto at(const std::size_t& times)
       -> auto &
   {
     if (is_empty()) [[unlikely]]      { empty_list(); return _failed_;}
     if (times < 0 || times >= size()) { empty_list(); return _failed_;}
     auto it = begin();
-    for (T i = 0; i < times; ++i) { ++it; }
+    for (std::size_t i = 0; i < times; ++i) { ++it; }
     return (*it);
   }
 
   [[nodiscard]]
   constexpr 
-  auto at(const T& times) const
+  auto at(const std::size_t& times) const
       -> auto
   {
     if (is_empty()) [[unlikely]]      { empty_list(); return _failed_;}
     if (times < 0 || times >= size()) { empty_list(); return _failed_;}
     auto it = begin();
-    for (T i = 0; i < times; ++i) { ++it; }
+    for (std::size_t i = 0; i < times; ++i) { ++it; }
     return (*it);
   }
 
@@ -356,12 +356,12 @@ public:
   auto push_front(const T &arg) 
       -> void
   {
-    sh_ptr old_head   = allocate_node();
-    m_head->m_prev    = old_head; // linking head to old head // head -> |old head, arg, next|
+    sh_ptr new_node   = allocate_node();
+    m_head->m_prev    = new_node; // linking head to old head // head -> |old head, arg, next|
     //
-    old_head->m_data  = arg;
-    old_head->m_next  = m_head;
-    m_head = old_head; // m_head is new_head now
+    new_node->m_data  = arg;
+    new_node->m_next  = m_head;
+    m_head = new_node; // m_head is new_head now
     m_head->m_prev    = nullptr;
     //
     ++m_size;
@@ -376,12 +376,12 @@ public:
   auto push_front(T &&arg)
       -> void
   {
-    sh_ptr old_head   = allocate_node();
-    m_head->m_prev    = old_head; // linking head to old head // head -> |old head, arg, next|
+    sh_ptr new_node   = allocate_node();
+    m_head->m_prev    = new_node; // linking head to old head // head -> |old head, arg, next|
     //
-    old_head->m_data  = arg;
-    old_head->m_next  = m_head;
-    m_head = old_head; // m_head is new_head now
+    new_node->m_data  = arg;
+    new_node->m_next  = m_head;
+    m_head = new_node; // m_head is new_head now
     m_head->m_prev    = nullptr;
     //
     ++m_size;
@@ -559,7 +559,7 @@ public:
       -> void
   {
     if (is_empty()) { empty_list(); return;}
-    if (before == at(m_tail)) { push_back(val); }
+    if (before == at(m_head)) { push_front(val); }
     sh_ptr it = {m_head};
     for( ; at(it) != before; it = it->m_next ) {}
     if (!it->m_next) { std::cerr << "- `pos` not found..."; return;}
