@@ -409,12 +409,12 @@ public:
     if (pos == 0)                     { push_front(arg); }
     if (pos == size()-1)              { push_back(arg); }
     /* adding nodes between previous and next */
-    sh_ptr prev_node  = allocate_node(); // hold previous node
+    sh_ptr prev_node  = nullptr; // hold previous node
     sh_ptr new_node   = allocate_node(); // hold new node
     sh_ptr next_node  = m_head; // points to next node
     //
     for (std::size_t i = 0; i < pos; ++i) {
-      prev_node = next_node;
+      prev_node = next_node; 
       next_node = next_node->m_next;
     }
     new_node->m_data  = arg;
@@ -436,7 +436,7 @@ public:
     if (pos == 0)                 { push_front(arg); }
     if (pos == size()-1)          { push_back(arg); }
     /* adding nodes between previous and next */
-    sh_ptr prev_node  = allocate_node(); // hold previous node
+    sh_ptr prev_node  = nullptr; // hold previous node
     sh_ptr new_node   = allocate_node(); // hold new node
     sh_ptr next_node  = m_head; // points to next node
     //
@@ -462,7 +462,7 @@ public:
   * @param arg
   */
   constexpr 
-  auto push_after_node(const std::size_t pos, const T &arg)
+  auto push_after_at(const std::size_t pos, const T &arg)
       -> void
   {
     if (is_empty())  [[unlikely]]     { empty_list(); return; }
@@ -495,7 +495,7 @@ public:
   * @param arg
   */
   constexpr
-  auto push_after_node(const std::size_t pos,  T &&arg)
+  auto push_after_at(const std::size_t pos,  T &&arg)
       -> void
   {
     if (is_empty())  [[unlikely]]     { empty_list(); return; }
@@ -527,7 +527,7 @@ public:
   * @param val : the value
   */
   constexpr
-  auto push_after(const T& after, const T& val) 
+  auto push_after_value(const T& after, const T& val) 
       -> void
   {
     if (is_empty()) { empty_list(); return;}
@@ -555,7 +555,7 @@ public:
   * @param val : the value
   */
   constexpr
-  auto push_before(const T& before, const T& val) 
+  auto push_before_value(const T& before, const T& val) 
       -> void
   {
     if (is_empty()) { empty_list(); return;}
@@ -579,7 +579,7 @@ public:
     //
     ++m_size;
   }
-  /// @brief pop certain value from list
+  /// @brief pop certain value/s from list
   constexpr
   auto pop_value(T&& val)
       -> void
@@ -610,7 +610,7 @@ public:
     if (size() == 1)             { m_head.reset(); return; } // if one node created
     //
     sh_ptr last   = m_tail;
-    sh_ptr temp = last->m_prev->m_prev;
+    sh_ptr temp = last->m_prev->m_prev; 
     //
     m_tail = m_tail->m_prev; // old tail = prev of tail
     m_tail->m_next = nullptr; // new tails next = null;
