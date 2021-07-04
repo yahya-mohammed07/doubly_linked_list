@@ -469,7 +469,7 @@ public:
     if (pos == 0)                     { push_front(arg); }
     if (pos == size()-1)              { push_back(arg); }
     /* adding nodes between previous and next */
-    sh_ptr prev_node  = allocate_node(); // hold previous node
+    sh_ptr prev_node  = nullptr; // hold previous node
     sh_ptr new_node   = allocate_node(); // hold new node
     sh_ptr next_node  = m_head; // points to next node
     //
@@ -502,7 +502,7 @@ public:
     if (pos == 0)                     { push_front(arg); }
     if (pos == size()-1)              { push_back(arg); }
     /* adding nodes between previous and next */
-    sh_ptr prev_node  = allocate_node(); // hold previous node
+    sh_ptr prev_node  = nullptr; // hold previous node
     sh_ptr new_node   = allocate_node(); // hold new node
     sh_ptr next_node  = m_head; // points to next node
     //
@@ -652,7 +652,7 @@ public:
     if (pos == 0)                 { pop_front(); return; }
     else if ( pos == s-1)         { pop_back(); return; }
     //
-    sh_ptr prev = allocate_node();
+    sh_ptr prev = nullptr;
     sh_ptr next = m_head;
     // ex: 0, 1, 2, 3, 4, 5 : pop_at(1) now:
     sh_ptr mid   = m_head;
@@ -682,7 +682,7 @@ public:
     if (pos == 0)                 { pop_front(); return; }
     else if ( pos == s-1)         { pop_back(); return; }
     //
-    sh_ptr prev = allocate_node();
+    sh_ptr prev = nullptr;
     sh_ptr next = m_head;
     // ex: 0, 1, 2, 3, 4, 5 : pop_at(1) now:
     sh_ptr mid   = m_head;
