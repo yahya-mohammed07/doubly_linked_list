@@ -164,7 +164,7 @@ public:
   [[nodiscard]] constexpr auto is_empty()
       const noexcept -> bool
   {
-    return m_head == nullptr ? true : false;
+    return m_head == nullptr;
   }
 
   /**
