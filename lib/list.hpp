@@ -526,15 +526,21 @@ public:
   * @param after : the value you want add value after it
   * @param val : the value
   */
+
   constexpr
-  auto push_after_value(const T& after, const T& val) 
+  auto push_after_value(T&& after, T&& val) 
       -> void
   {
     if (is_empty()) { empty_list(); return;}
-    if (after == at(m_tail)) { push_back(val); }
+    if (after == at(m_tail)) { push_back(val); return; }
     sh_ptr it = {m_head};
-    for( ; at(it) != after; it = it->m_next ) {}
-    if (!it->m_next) { std::cerr << "- `pos` not found..."; return;}
+    while ( at(it) != after) {
+      if (it->m_next == nullptr) {
+        std::cerr << "- `pos` not found...";
+        return;
+      }
+      it = it->m_next;
+    }
     //
     sh_ptr new_node = allocate_node();
     new_node->m_data = val; // add data to new_node
@@ -543,9 +549,32 @@ public:
     it->m_next = new_node; // it's next points to new_node
     new_node->m_prev = it;
     //
-    if (new_node->m_next != nullptr) {
-      new_node->m_next->m_prev = new_node;
+    new_node->m_next->m_prev = new_node;
+  
+    ++m_size;
+  }
+
+  constexpr
+  auto push_after_value(const T& after, const T& val) 
+      -> void
+  {
+    if (is_empty()) { empty_list(); return;}
+    if (after == at(m_tail)) { push_back(val); return; }
+    sh_ptr it = {m_head};
+    while ( at(it) != after) {
+      if (it->m_next == nullptr) { std::cerr << "- `pos` not found..."; return; }
+      it = it->m_next;
     }
+    //
+    sh_ptr new_node = allocate_node();
+    new_node->m_data = val; // add data to new_node
+    /// @link:
+    new_node->m_next = it->m_next; // new_node's next now points at what it's next it
+    it->m_next = new_node; // it's next points to new_node
+    new_node->m_prev = it;
+    //
+    new_node->m_next->m_prev = new_node;
+  
     ++m_size;
   }
 
@@ -554,15 +583,21 @@ public:
   * @param before : the value you want add value before it
   * @param val : the value
   */
+
   constexpr
-  auto push_before_value(const T& before, const T& val) 
+  auto push_before_value(T&& before, T&& val) 
       -> void
   {
     if (is_empty()) { empty_list(); return;}
-    if (before == at(m_head)) { push_front(val); }
+    if (before == at(m_head)) { push_front(val); return; }
     sh_ptr it = {m_head};
-    for( ; at(it) != before; it = it->m_next ) {}
-    if (!it->m_next) { std::cerr << "- `pos` not found..."; return;}
+    while ( at(it) != before) {
+      if (it->m_next == nullptr) {
+        std::cerr << "- `pos` not found...";
+        return;
+      }
+      it = it->m_next;
+    }
     //
     sh_ptr new_node = allocate_node();
     new_node->m_data = val; // add data to new_node
@@ -570,12 +605,33 @@ public:
     new_node->m_prev = it->m_prev;
     it->m_prev = new_node;
     new_node->m_next = it; // new_node's next now points to `it`
+    new_node->m_prev->m_next = new_node;
     //
-    if (new_node->m_prev != nullptr) {
-      new_node->m_prev->m_next = new_node;
-    } else {
-      m_head = new_node;
+    ++m_size;
+  }
+
+  constexpr
+  auto push_before_value(const T& before, const T& val) 
+      -> void
+  {
+    if (is_empty()) { empty_list(); return;}
+    if (before == at(m_head)) { push_front(val); return; }
+    sh_ptr it = {m_head};
+    while ( at(it) != before) {
+      if (it->m_next == nullptr) {
+        std::cerr << "- `pos` not found...";
+        return;
+      }
+      it = it->m_next;
     }
+    //
+    sh_ptr new_node = allocate_node();
+    new_node->m_data = val; // add data to new_node
+    /// @link:
+    new_node->m_prev = it->m_prev;
+    it->m_prev = new_node;
+    new_node->m_next = it; // new_node's next now points to `it`
+    new_node->m_prev->m_next = new_node;
     //
     ++m_size;
   }
@@ -750,7 +806,7 @@ public:
   }
 
   /**
-  * @brief: sorts element in ASC order by default put `true` for DESC
+  * @brief: sorts element in ASC order by default, put `true` for DESC
   * @complexity  O(n^2)
   */
   constexpr
