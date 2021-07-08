@@ -531,7 +531,7 @@ public:
       -> void
   {
     if (is_empty()) { empty_list(); return;}
-    if (after == at(m_tail)) { push_back(val); }
+    if (after == at(m_tail)) { push_back(val); return; }
     sh_ptr it = {m_head};
     for( ; at(it) != after; it = it->m_next ) {}
     if (!it->m_next) { std::cerr << "- `pos` not found..."; return;}
@@ -559,7 +559,7 @@ public:
       -> void
   {
     if (is_empty()) { empty_list(); return;}
-    if (before == at(m_head)) { push_front(val); }
+    if (before == at(m_head)) { push_front(val); return; }
     sh_ptr it = {m_head};
     for( ; at(it) != before; it = it->m_next ) {}
     if (!it->m_next) { std::cerr << "- `pos` not found..."; return;}
