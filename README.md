@@ -40,7 +40,6 @@
     auto main()
         -> int
     {
-      auto main() -> int {
       List_<int> nums(1, 2, 3, 5);
       nums.push_at(3, 99);
       nums.print(true, '\n');
