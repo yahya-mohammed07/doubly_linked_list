@@ -406,8 +406,7 @@ public:
       -> void
   {
     if (is_empty())  [[unlikely]]     { empty_list(); return; }
-    if (pos == 0)                     { push_front(arg); }
-    if (pos == size()-1)              { push_back(arg); }
+    if (pos == 0)                     { push_front(arg); return; }
     /* adding nodes between previous and next */
     sh_ptr prev_node  = nullptr; // hold previous node
     sh_ptr new_node   = allocate_node(); // hold new node
@@ -429,12 +428,11 @@ public:
   }
 
   constexpr
-  auto push_at(const std::size_t pos, T &&arg)
+  auto push_at(std::size_t &&pos, T &&arg)
       -> void
   {
     if (is_empty()) [[unlikely]]  { empty_list(); return; }
-    if (pos == 0)                 { push_front(arg); }
-    if (pos == size()-1)          { push_back(arg); }
+    if (pos == 0)                 { push_front(arg); return; }
     /* adding nodes between previous and next */
     sh_ptr prev_node  = nullptr; // hold previous node
     sh_ptr new_node   = allocate_node(); // hold new node
@@ -526,7 +524,6 @@ public:
   * @param after : the value you want add value after it
   * @param val : the value
   */
-
   constexpr
   auto push_after_value(T&& after, T&& val) 
       -> void
@@ -583,7 +580,6 @@ public:
   * @param before : the value you want add value before it
   * @param val : the value
   */
-
   constexpr
   auto push_before_value(T&& before, T&& val) 
       -> void
@@ -910,15 +906,17 @@ public:
   * @brief erases the list
   * @complexity O(n)
   */
-  auto clear() -> void
+  constexpr
+  auto clear()
+      -> void
   {
     if (is_empty()) [[unlikely]] { empty_list(); return; }
-    sh_ptr it = m_head;
+    sh_ptr it       = m_head;
     sh_ptr temp     = {};
     while ( it != nullptr ) {
-      temp = it->m_next;
-      it = nullptr;
-      it = temp;
+      temp  = it->m_next;
+      it    = nullptr;
+      it    = temp;
     }
     m_head.reset();
     m_tail.reset();
