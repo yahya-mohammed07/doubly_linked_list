@@ -406,6 +406,9 @@ public:
       -> void
   {
     if (is_empty())  [[unlikely]]     { empty_list(); return; }
+    if (pos == size() || pos > size()) {
+      std::cerr << "- `pos` does not exist...\n"; return;
+    }
     if (pos == 0)                     { push_front(arg); return; }
     /* adding nodes between previous and next */
     sh_ptr prev_node  = nullptr; // hold previous node
@@ -432,6 +435,9 @@ public:
       -> void
   {
     if (is_empty()) [[unlikely]]  { empty_list(); return; }
+    if (pos == size() || pos > size()) {
+      std::cerr << "- `pos` does not exist...\n"; return;
+    }
     if (pos == 0)                 { push_front(arg); return; }
     /* adding nodes between previous and next */
     sh_ptr prev_node  = nullptr; // hold previous node
@@ -464,8 +470,10 @@ public:
       -> void
   {
     if (is_empty())  [[unlikely]]     { empty_list(); return; }
-    if (pos == 0)                     { push_front(arg); }
-    if (pos == size()-1)              { push_back(arg); }
+    if (pos == size() || pos > size()) { 
+      std::cerr << "- `pos` does not exist...\n"; return;
+    }
+    if (pos == size()-1)              { push_back(arg); return; }
     /* adding nodes between previous and next */
     sh_ptr prev_node  = nullptr; // hold previous node
     sh_ptr new_node   = allocate_node(); // hold new node
@@ -493,12 +501,14 @@ public:
   * @param arg
   */
   constexpr
-  auto push_after_at(const std::size_t pos,  T &&arg)
+  auto push_after_at(std::size_t &&pos,  T &&arg)
       -> void
   {
     if (is_empty())  [[unlikely]]     { empty_list(); return; }
-    if (pos == 0)                     { push_front(arg); }
-    if (pos == size()-1)              { push_back(arg); }
+    if (pos == size() || pos > size()) {
+      std::cerr << "- `pos` does not exist...\n"; return;
+    }
+    if (pos == size()-1)              { push_back(arg); return; }
     /* adding nodes between previous and next */
     sh_ptr prev_node  = nullptr; // hold previous node
     sh_ptr new_node   = allocate_node(); // hold new node
