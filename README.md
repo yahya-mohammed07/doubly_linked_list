@@ -13,7 +13,8 @@
   - Tested on:
     - g++10 -std=c++2a
     - g++-11 -std=c++2a
-    - clang++-11 -std=c++2a note: generates warnings about [[likely]] & [[unlikely]] attributes
+    - clang++-11 -std=c++2a
+    - clang++-10 `under testing`
 
 ### Everything inside `list.hpp`
 
