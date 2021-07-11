@@ -187,7 +187,7 @@ public:
   auto front()
       -> T &
   {
-    if (is_empty()) [[unlikely]] { empty_list(); return _failed_; }
+    if (is_empty())  { empty_list(); return _failed_; }
     return m_head->m_data;
   }
 
@@ -201,7 +201,7 @@ public:
   auto back()
       -> T &
   {
-    if (is_empty()) [[unlikely]] { empty_list(); return _failed_;}
+    if (is_empty())  { empty_list(); return _failed_;}
     return m_tail->m_data;
   }
 
@@ -215,7 +215,7 @@ public:
   auto back() const
       -> T
   {
-    if (is_empty()) [[unlikely]] { empty_list(); return _failed_;}
+    if (is_empty())  { empty_list(); return _failed_;}
     return m_tail->m_data;
   }
 
@@ -229,7 +229,7 @@ public:
   auto print(const bool order = true, const char delimiter = ' ')
       const -> void
   {
-    if (is_empty()) [[unlikely]]  { empty_list(); return; }
+    if (is_empty())   { empty_list(); return; }
             if ( order ) {
       for ( auto&& i : *this ) { std::cout << i << ' '; }
       std::cout << delimiter;
@@ -252,8 +252,8 @@ public:
   auto at(const std::size_t& times)
       -> auto &
   {
-    if (is_empty()) [[unlikely]]      { empty_list(); return _failed_;}
-    if (times < 0 || times >= size()) { empty_list(); return _failed_;}
+    if (is_empty())       { empty_list(); return _failed_;}
+    if (times < 0 || times > size()-1) { empty_list(); return _failed_;}
     auto it = begin();
     for (std::size_t i = 0; i < times; ++i) { ++it; }
     return (*it);
@@ -264,8 +264,8 @@ public:
   auto at(const std::size_t& times) const
       -> auto
   {
-    if (is_empty()) [[unlikely]]      { empty_list(); return _failed_;}
-    if (times < 0 || times >= size()) { empty_list(); return _failed_;}
+    if (is_empty())       { empty_list(); return _failed_;}
+    if (times < 0 || times > size()-1) { empty_list(); return _failed_;}
     auto it = begin();
     for (std::size_t i = 0; i < times; ++i) { ++it; }
     return (*it);
@@ -292,7 +292,7 @@ public:
     new_node->m_data  = arg;
     new_node->m_next  = nullptr;
     //
-    if ( is_empty() ) [[unlikely]] {
+    if ( is_empty() )  {
       m_head = new_node; // |null,arg, null|
       m_tail = new_node; // |null,arg, null|
     }
@@ -322,7 +322,7 @@ public:
     new_node->m_data  = arg;
     new_node->m_next  = nullptr;
     //
-    if ( is_empty() ) [[unlikely]] {
+    if ( is_empty() )  {
       m_head = new_node; // |null,arg, null|
       m_tail = new_node; // |null,arg, null|
     }
@@ -405,8 +405,8 @@ public:
   auto push_at(const std::size_t pos, const T &arg)
       -> void
   {
-    if (is_empty())  [[unlikely]]     { empty_list(); return; }
-    if (pos == size() || pos > size()) {
+    if (is_empty())       { empty_list(); return; }
+    if (pos < 0 || pos > size()-1) {
       std::cerr << "- `pos` does not exist...\n"; return;
     }
     if (pos == 0)                     { push_front(arg); return; }
@@ -434,8 +434,8 @@ public:
   auto push_at(std::size_t &&pos, T &&arg)
       -> void
   {
-    if (is_empty()) [[unlikely]]  { empty_list(); return; }
-    if (pos == size() || pos > size()) {
+    if (is_empty())   { empty_list(); return; }
+    if (pos < 0 || pos > size()-1) {
       std::cerr << "- `pos` does not exist...\n"; return;
     }
     if (pos == 0)                 { push_front(arg); return; }
@@ -469,8 +469,8 @@ public:
   auto push_after_at(const std::size_t pos, const T &arg)
       -> void
   {
-    if (is_empty())  [[unlikely]]     { empty_list(); return; }
-    if (pos == size() || pos > size()) { 
+    if (is_empty())       { empty_list(); return; }
+    if (pos < 0 || pos > size()-1) { 
       std::cerr << "- `pos` does not exist...\n"; return;
     }
     if (pos == size()-1)              { push_back(arg); return; }
@@ -504,8 +504,8 @@ public:
   auto push_after_at(std::size_t &&pos,  T &&arg)
       -> void
   {
-    if (is_empty())  [[unlikely]]     { empty_list(); return; }
-    if (pos == size() || pos > size()) {
+    if (is_empty())       { empty_list(); return; }
+    if (pos < 0 || pos > size()-1) {
       std::cerr << "- `pos` does not exist...\n"; return;
     }
     if (pos == size()-1)              { push_back(arg); return; }
@@ -552,7 +552,7 @@ public:
     sh_ptr new_node = allocate_node();
     new_node->m_data = val; // add data to new_node
     /// @link:
-    new_node->m_next = it->m_next; // new_node's next now points at what it's next it
+    new_node->m_next = it->m_next; // new_node's next now pointing at what it's next is
     it->m_next = new_node; // it's next points to new_node
     new_node->m_prev = it;
     //
@@ -576,7 +576,7 @@ public:
     sh_ptr new_node = allocate_node();
     new_node->m_data = val; // add data to new_node
     /// @link:
-    new_node->m_next = it->m_next; // new_node's next now points at what it's next it
+    new_node->m_next = it->m_next; // new_node's next now points at what it's next is
     it->m_next = new_node; // it's next points to new_node
     new_node->m_prev = it;
     //
@@ -610,7 +610,7 @@ public:
     /// @link:
     new_node->m_prev = it->m_prev;
     it->m_prev = new_node;
-    new_node->m_next = it; // new_node's next now points to `it`
+    new_node->m_next = it; // new_node is now pointing to `it`
     new_node->m_prev->m_next = new_node;
     //
     ++m_size;
@@ -636,7 +636,7 @@ public:
     /// @link:
     new_node->m_prev = it->m_prev;
     it->m_prev = new_node;
-    new_node->m_next = it; // new_node's next now points to `it`
+    new_node->m_next = it; // new_node is now pointing to `it`
     new_node->m_prev->m_next = new_node;
     //
     ++m_size;
@@ -668,7 +668,7 @@ public:
   auto pop_back()
       -> void
   {
-    if (is_empty()) [[unlikely]] { empty_list(); return; }
+    if (is_empty())  { empty_list(); return; }
     if (size() == 1)             { m_head.reset(); return; } // if one node created
     //
     sh_ptr last   = m_tail;
@@ -689,7 +689,7 @@ public:
   auto pop_front() 
       -> void
   {
-    if (is_empty()) [[unlikely]]  { empty_list(); return; }
+    if (is_empty())   { empty_list(); return; }
     if (size() == 1)              { m_head.reset(); return; } // if one node created
     //
     sh_ptr first  = {m_head}; // first points to old head
@@ -710,7 +710,7 @@ public:
   {
     const std::size_t s = size();
     if (pos < 0 || pos >= s)      { empty_list(); return; }
-    if (is_empty()) [[unlikely]]  { empty_list(); return; }
+    if (is_empty())   { empty_list(); return; }
     if (pos == 0)                 { pop_front(); return; }
     else if ( pos == s-1)         { pop_back(); return; }
     //
@@ -740,7 +740,7 @@ public:
   {
     const std::size_t s = size();
     if (pos < 0 || pos >= s)      { empty_list(); return; }
-    if (is_empty()) [[unlikely]]  { empty_list(); return; }
+    if (is_empty())   { empty_list(); return; }
     if (pos == 0)                 { pop_front(); return; }
     else if ( pos == s-1)         { pop_back(); return; }
     //
@@ -786,7 +786,7 @@ public:
   */
   auto split(List_<T> &l1, List_<T> &l2) -> void // note: not tes
   {
-    if (is_empty()) [[unlikely]] { empty_list(); return; }
+    if (is_empty())  { empty_list(); return; }
     const auto& s   = size();
     sh_ptr      it  = { m_head };
     for (std::size_t i = 0; i < (s/2); ++i, it = it->m_next) {
@@ -805,8 +805,8 @@ public:
   */
   auto merge( List_<T>& l1,  List_<T>& l2) -> void // note: not tested
   {
-    if (l1.is_empty()) [[unlikely]] { empty_list(); return; }
-    if (l2.is_empty()) [[unlikely]] { empty_list(); return; }
+    if (l1.is_empty())  { empty_list(); return; }
+    if (l2.is_empty())  { empty_list(); return; }
     for ( const auto& i : l1 ) { push_back(i); }
     for ( const auto& i : l2 ) { push_back(i); }
   }
@@ -824,7 +824,7 @@ public:
     sh_ptr curr   = {};
     sh_ptr next   = {};
     //
-    if ( !desc ) [[likely]] {
+    if ( !desc )  {
       while ( sorted ) {
         sorted   = false;
         curr     = m_head;
@@ -862,7 +862,7 @@ public:
   auto is_sorted() const 
       -> bool
   {
-    if ( is_empty() ) [[unlikely]] { empty_list(); return -1; }
+    if ( is_empty() )  { empty_list(); return -1; }
     bool check  = false;
     sh_ptr it   = {m_head};
     while ( it->m_next != nullptr ) {
@@ -886,7 +886,7 @@ public:
   auto search(const T & target) const 
       -> bool
   {
-    if (is_empty()) [[unlikely]] { empty_list(); return -1; }
+    if (is_empty())  { empty_list(); return -1; }
     for (const auto& i : *this) {
       if ( i == target ) { return true; }
     }
@@ -904,7 +904,7 @@ public:
   auto locate(const T& target) const 
       -> std::int64_t
   {
-    if (is_empty()) [[unlikely]] { empty_list(); return -1; }
+    if (is_empty())  { empty_list(); return -1; }
     for (std::size_t j = 0; const auto& i : *this ) {
       if ( i == target ) { return static_cast<std::int64_t>(j); }
       ++j;
@@ -920,18 +920,19 @@ public:
   auto clear()
       -> void
   {
-    if (is_empty()) [[unlikely]] { empty_list(); return; }
-    sh_ptr it       = m_head;
-    sh_ptr temp     = {};
-    while ( it != nullptr ) {
-      temp  = it->m_next;
-      it    = nullptr;
-      it    = temp;
+    if (is_empty())  { empty_list(); return; }
+    sh_ptr it;
+    while ( m_tail != nullptr ) {
+      it = m_tail->m_prev;
+      m_tail->m_next = nullptr;
+      m_tail->m_prev = nullptr;
+      m_tail = it;
     }
-    m_head.reset();
-    m_tail.reset();
-    it.reset();
-    m_size = {};
+  }
+  //
+  constexpr
+  ~List_() {
+    clear();
   }
 }; // end of class List_<T>
 
