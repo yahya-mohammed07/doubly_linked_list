@@ -14,7 +14,7 @@
     - g++10 -std=c++2a
     - g++-11 -std=c++2a
     - clang++-11 -std=c++2a
-    - clang++-10 `under testing`
+    - clang++-10 -std=c++2a
 
 ### Everything inside `list.hpp`
 
