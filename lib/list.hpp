@@ -252,8 +252,8 @@ public:
   auto at(const std::size_t& times)
       -> auto &
   {
-    if (is_empty())       { empty_list(); return _failed_;}
-    if (times < 0 || times > size()-1) { empty_list(); return _failed_;}
+    if (is_empty()) { empty_list(); return _failed_;}
+    if (times < 0 || times > m_size-1) { empty_list(); return _failed_;}
     auto it = begin();
     for (std::size_t i = 0; i < times; ++i) { ++it; }
     return (*it);
@@ -264,8 +264,8 @@ public:
   auto at(const std::size_t& times) const
       -> auto
   {
-    if (is_empty())       { empty_list(); return _failed_;}
-    if (times < 0 || times > size()-1) { empty_list(); return _failed_;}
+    if (is_empty()) { empty_list(); return _failed_;}
+    if (times < 0 || times > m_size-1) { empty_list(); return _failed_;}
     auto it = begin();
     for (std::size_t i = 0; i < times; ++i) { ++it; }
     return (*it);
@@ -406,7 +406,7 @@ public:
       -> void
   {
     if (is_empty())       { empty_list(); return; }
-    if (pos < 0 || pos > size()-1) {
+    if (pos < 0 || pos > m_size-1) {
       std::cerr << "- `pos` does not exist...\n"; return;
     }
     if (pos == 0)                     { push_front(arg); return; }
@@ -435,7 +435,7 @@ public:
       -> void
   {
     if (is_empty())   { empty_list(); return; }
-    if (pos < 0 || pos > size()-1) {
+    if (pos < 0 || pos > m_size-1) {
       std::cerr << "- `pos` does not exist...\n"; return;
     }
     if (pos == 0)                 { push_front(arg); return; }
@@ -448,7 +448,7 @@ public:
       prev_node = next_node;
       next_node = next_node->m_next;
     }
-    new_node->m_data    = arg;
+    new_node->m_data   = arg;
     /// @link:
     prev_node->m_next = new_node;
     new_node->m_next  = next_node;
@@ -465,15 +465,15 @@ public:
   * @param pos
   * @param arg
   */
-  constexpr 
+  constexpr
   auto push_after_at(const std::size_t pos, const T &arg)
       -> void
   {
     if (is_empty())       { empty_list(); return; }
-    if (pos < 0 || pos > size()-1) { 
+    if (pos < 0 || pos > m_size-1) {
       std::cerr << "- `pos` does not exist...\n"; return;
     }
-    if (pos == size()-1)              { push_back(arg); return; }
+    if (pos == m_size-1) { push_back(arg); return; }
     /* adding nodes between previous and next */
     sh_ptr prev_node  = nullptr; // hold previous node
     sh_ptr new_node   = allocate_node(); // hold new node
@@ -505,10 +505,10 @@ public:
       -> void
   {
     if (is_empty())       { empty_list(); return; }
-    if (pos < 0 || pos > size()-1) {
+    if (pos < 0 || pos > m_size-1) {
       std::cerr << "- `pos` does not exist...\n"; return;
     }
-    if (pos == size()-1)              { push_back(arg); return; }
+    if (pos == m_size-1)  { push_back(arg); return; }
     /* adding nodes between previous and next */
     sh_ptr prev_node  = nullptr; // hold previous node
     sh_ptr new_node   = allocate_node(); // hold new node
@@ -535,7 +535,7 @@ public:
   * @param val : the value
   */
   constexpr
-  auto push_after_value(T&& after, T&& val) 
+  auto push_after_value(T&& after, T&& val)
       -> void
   {
     if (is_empty()) { empty_list(); return;}
@@ -557,12 +557,11 @@ public:
     new_node->m_prev = it;
     //
     new_node->m_next->m_prev = new_node;
-  
     ++m_size;
   }
 
   constexpr
-  auto push_after_value(const T& after, const T& val) 
+  auto push_after_value(const T& after, const T& val)
       -> void
   {
     if (is_empty()) { empty_list(); return;}
@@ -581,7 +580,6 @@ public:
     new_node->m_prev = it;
     //
     new_node->m_next->m_prev = new_node;
-  
     ++m_size;
   }
 
@@ -591,7 +589,7 @@ public:
   * @param val : the value
   */
   constexpr
-  auto push_before_value(T&& before, T&& val) 
+  auto push_before_value(T&& before, T&& val)
       -> void
   {
     if (is_empty()) { empty_list(); return;}
@@ -617,7 +615,7 @@ public:
   }
 
   constexpr
-  auto push_before_value(const T& before, const T& val) 
+  auto push_before_value(const T& before, const T& val)
       -> void
   {
     if (is_empty()) { empty_list(); return;}
@@ -665,14 +663,15 @@ public:
   * @brief remove last element
   * @complexity O(n)
   */
+  constexpr
   auto pop_back()
       -> void
   {
     if (is_empty())  { empty_list(); return; }
-    if (size() == 1)             { m_head.reset(); return; } // if one node created
+    if (m_size == 1) { m_head.reset(); return; } // if one node created
     //
     sh_ptr last   = m_tail;
-    sh_ptr temp = last->m_prev->m_prev; 
+    sh_ptr temp   = last->m_prev->m_prev;
     //
     m_tail = m_tail->m_prev; // old tail = prev of tail
     m_tail->m_next = nullptr; // new tails next = null;
@@ -686,11 +685,12 @@ public:
   * @brief remove first element
   * @complexity O(1)
   */
-  auto pop_front() 
+  constexpr
+  auto pop_front()
       -> void
   {
     if (is_empty())   { empty_list(); return; }
-    if (size() == 1)              { m_head.reset(); return; } // if one node created
+    if (m_size == 1)  { m_head.reset(); return; } // if one node created
     //
     sh_ptr first  = {m_head}; // first points to old head
     m_head        = m_head->m_next; // head points to one step ahead of old head
@@ -708,11 +708,10 @@ public:
   auto pop_at(const std::size_t& pos)
       -> void
   {
-    const std::size_t s = size();
-    if (pos < 0 || pos >= s)      { empty_list(); return; }
-    if (is_empty())   { empty_list(); return; }
+    if (pos < 0 || pos >= m_size) { empty_list(); return; }
+    if (is_empty())               { empty_list(); return; }
     if (pos == 0)                 { pop_front(); return; }
-    else if ( pos == s-1)         { pop_back(); return; }
+    else if ( pos == m_size-1)    { pop_back(); return; }
     //
     sh_ptr prev = nullptr;
     sh_ptr next = m_head;
@@ -721,7 +720,7 @@ public:
     for (std::size_t i = 0; i < pos && next != nullptr; ++i) {
       prev  = mid;                 // 0
       next  = mid->m_next->m_next; // 2
-      mid    = mid->m_next;         // 1
+      mid   = mid->m_next;         // 1
     }
     prev->m_next = next; // 0 -> 2 -> 3 -> 4 -> 5 and whatever was node 1, is now gone
     next->m_prev = prev;
@@ -738,11 +737,10 @@ public:
   auto pop_at(std::size_t&& pos)
       -> void
   {
-    const std::size_t s = size();
-    if (pos < 0 || pos >= s)      { empty_list(); return; }
-    if (is_empty())   { empty_list(); return; }
+    if (pos < 0 || pos >= m_size) { empty_list(); return; }
+    if (is_empty())               { empty_list(); return; }
     if (pos == 0)                 { pop_front(); return; }
-    else if ( pos == s-1)         { pop_back(); return; }
+    else if ( pos == m_size-1)    { pop_back(); return; }
     //
     sh_ptr prev = nullptr;
     sh_ptr next = m_head;
@@ -760,7 +758,7 @@ public:
     mid = nullptr; // 1 -> nullptr
   }
 
-  /// @brief pops duplicates from the list 
+  /// @brief pops duplicates from the list
   constexpr
   auto pop_duplicates()
       -> void
@@ -816,7 +814,7 @@ public:
   * @complexity  O(n^2)
   */
   constexpr
-  auto sort(const bool desc = false) const 
+  auto sort(const bool desc = false) const
       -> void
   {
     if (is_empty()) { empty_list(); return; }
@@ -859,10 +857,10 @@ public:
   */
   [[nodiscard]]
   constexpr
-  auto is_sorted() const 
+  auto is_sorted() const
       -> bool
   {
-    if ( is_empty() )  { empty_list(); return -1; }
+    if ( is_empty() )  { empty_list(); return false; }
     bool check  = false;
     sh_ptr it   = {m_head};
     while ( it->m_next != nullptr ) {
@@ -883,11 +881,28 @@ public:
   */
   [[nodiscard]]
   constexpr
-  auto search(const T & target) const 
+  auto search(const T &target) const
       -> bool
   {
-    if (is_empty())  { empty_list(); return -1; }
+    if (is_empty())  { empty_list(); return false; }
     for (const auto& i : *this) {
+      if ( i == target ) { return true; }
+    }
+    return false;
+  }
+
+  /**
+  * @brief search for a value
+  * @complexity O(n)
+  * @param target
+  */
+  [[nodiscard]]
+  constexpr
+  auto search(T &&target) const
+      -> bool
+  {
+    if (is_empty())  { empty_list(); return false; }
+    for (auto &&i : *this) {
       if ( i == target ) { return true; }
     }
     return false;
@@ -899,14 +914,33 @@ public:
   * @param target
   * @return std::int64_t
   */
-  [[nodiscard]] 
+  [[nodiscard]]
   constexpr
-  auto locate(const T& target) const 
+  auto locate(const T& target) const
       -> std::int64_t
   {
     if (is_empty())  { empty_list(); return -1; }
-    for (std::size_t j = 0; const auto& i : *this ) {
-      if ( i == target ) { return static_cast<std::int64_t>(j); }
+    for (std::int64_t j = 0; const auto& i : *this ) {
+      if ( i == target ) { return j; }
+      ++j;
+    }
+    return -1;
+  }
+
+  /**
+  * @brief returns the location of that node containing target, count from the right to left
+  * @complexity O(n)
+  * @param target
+  * @return std::int64_t
+  */
+  [[nodiscard]]
+  constexpr
+  auto locate(T &&target) const
+      -> std::int64_t
+  {
+    if (is_empty())  { empty_list(); return -1; }
+    for (std::int64_t j = 0;  auto &&i : *this ) {
+      if ( i == target ) { return j; }
       ++j;
     }
     return -1;
