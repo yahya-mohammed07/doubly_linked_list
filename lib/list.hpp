@@ -352,8 +352,8 @@ public:
   * @complexity O(1)
   * @param arg
   */
-   constexpr 
-  auto push_front(const T &arg) 
+   constexpr
+  auto push_front(const T &arg)
       -> void
   {
     sh_ptr new_node   = allocate_node();
@@ -416,7 +416,7 @@ public:
     sh_ptr next_node  = m_head; // points to next node
     //
     for (std::size_t i = 0; i < pos; ++i) {
-      prev_node = next_node; 
+      prev_node = next_node;
       next_node = next_node->m_next;
     }
     new_node->m_data  = arg;
@@ -448,7 +448,7 @@ public:
       prev_node = next_node;
       next_node = next_node->m_next;
     }
-    new_node->m_data   = arg;
+    new_node->m_data  = arg;
     /// @link:
     prev_node->m_next = new_node;
     new_node->m_next  = next_node;
@@ -543,7 +543,7 @@ public:
     sh_ptr it = {m_head};
     while ( at(it) != after) {
       if (it->m_next == nullptr) {
-        std::cerr << "- `pos` not found...";
+        std::cerr << "- `value` not found...";
         return;
       }
       it = it->m_next;
@@ -568,7 +568,7 @@ public:
     if (after == at(m_tail)) { push_back(val); return; }
     sh_ptr it = {m_head};
     while ( at(it) != after) {
-      if (it->m_next == nullptr) { std::cerr << "- `pos` not found..."; return; }
+      if (it->m_next == nullptr) { std::cerr << "- `value` not found..."; return; }
       it = it->m_next;
     }
     //
@@ -597,7 +597,7 @@ public:
     sh_ptr it = {m_head};
     while ( at(it) != before) {
       if (it->m_next == nullptr) {
-        std::cerr << "- `pos` not found...";
+        std::cerr << "- `value` not found...";
         return;
       }
       it = it->m_next;
@@ -623,7 +623,7 @@ public:
     sh_ptr it = {m_head};
     while ( at(it) != before) {
       if (it->m_next == nullptr) {
-        std::cerr << "- `pos` not found...";
+        std::cerr << "- `value` not found...";
         return;
       }
       it = it->m_next;
@@ -670,10 +670,10 @@ public:
     if (is_empty())  { empty_list(); return; }
     if (m_size == 1) { m_head.reset(); return; } // if one node created
     //
-    sh_ptr last   = m_tail;
-    sh_ptr temp   = last->m_prev->m_prev;
+    sh_ptr last   = m_tail; //  holding the tail `old tail` to be deleted
+    sh_ptr temp   = last->m_prev->m_prev; // holding `prev -> prev` before losing data
     //
-    m_tail = m_tail->m_prev; // old tail = prev of tail
+    m_tail = m_tail->m_prev; // new tails = prev of tail
     m_tail->m_next = nullptr; // new tails next = null;
     m_tail->m_prev = temp; // new tails prev = last->prev->prev
 
@@ -749,7 +749,7 @@ public:
     for (std::size_t i = 0; i < pos && next != nullptr; ++i) {
       prev  = mid;                 // 0
       next  = mid->m_next->m_next; // 2
-      mid    = mid->m_next;         // 1
+      mid   = mid->m_next;         // 1
     }
     prev->m_next = next; // 0 -> 2 -> 3 -> 4 -> 5 and whatever was node 1, is now gone
     next->m_prev = prev;
