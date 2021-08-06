@@ -26,7 +26,7 @@
 
 ## Usage
 
-- simply download this library then copy `lib` folder to your working directory then include it like this: `#include "lib/list.hpp"`!
+- simply download (clone) this library then copy `lib` folder to your working directory then include it like this: `#include "lib/list.hpp"`!
 
 - if you're on ubuntu you can do this:
 
