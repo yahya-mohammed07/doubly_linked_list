@@ -81,12 +81,10 @@ public:
   [[nodiscard]] constexpr auto begin()  const noexcept -> iterator { return iterator(m_head); }
   [[nodiscard]] constexpr auto end()    const noexcept -> iterator { return iterator(nullptr); }
   [[nodiscard]] constexpr auto begin() noexcept -> iterator { return iterator(m_head); }
-  [[nodiscard]] constexpr auto end()   noexcept -> iterator { return iterator(nullptr); }
   //
   [[nodiscard]] constexpr auto rbegin()  const noexcept -> iterator { return iterator(m_tail); }
   [[nodiscard]] constexpr auto rend()    const noexcept -> iterator { return iterator(nullptr); }
   [[nodiscard]] constexpr auto rbegin()  noexcept -> iterator { return iterator(m_tail); }
-  [[nodiscard]] constexpr auto rend()    noexcept -> iterator { return iterator(nullptr); }
 
   /* constructors */
   List_() noexcept = default;
@@ -221,8 +219,8 @@ public:
 
   /**
    * @brief prints the list in both `forward and backword`
-   * 
-   * @param order `true` for forward `false` for backword  
+   *
+   * @param order `true` for forward `false` for backword
    * @param delimiter
    */
   constexpr
@@ -248,7 +246,7 @@ public:
   * @return auto&
   */
   [[nodiscard]]
-  constexpr 
+ constexpr
   auto at(const std::size_t& times)
       -> auto &
   {
@@ -260,7 +258,7 @@ public:
   }
 
   [[nodiscard]]
-  constexpr 
+  constexpr
   auto at(const std::size_t& times) const
       -> auto
   {
@@ -273,8 +271,8 @@ public:
 
   [[nodiscard]]
   constexpr
-  auto at(const sh_ptr& ptr)
-      const -> auto &
+  auto at(const sh_ptr& ptr) const
+      -> auto &
   {
     return ptr->m_data;
   }
@@ -377,7 +375,7 @@ public:
       -> void
   {
     sh_ptr new_node   = allocate_node();
-    m_head->m_prev    = new_node; // linking head to old head // head -> |old head, arg, next|
+    m_head->m_prev    = new_node; // linking head to new head // head -> |new head, arg, next|
     //
     new_node->m_data  = arg;
     new_node->m_next  = m_head;
@@ -571,7 +569,7 @@ public:
       if (it->m_next == nullptr) { std::cerr << "- `value` not found..."; return; }
       it = it->m_next;
     }
-    //
+    // 1 2 3 4
     sh_ptr new_node = allocate_node();
     new_node->m_data = val; // add data to new_node
     /// @link:
