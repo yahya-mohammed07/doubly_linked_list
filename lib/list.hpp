@@ -14,11 +14,8 @@
 #include <initializer_list>
 #include <iostream>
 #include <memory>
+#include "apology.hpp"
 
-
-constexpr auto empty_list = []() -> void {
-  std::cerr << "- list is empty...";
-};
 
 template <typename T>
 class List_
@@ -185,7 +182,7 @@ public:
   auto front()
       -> T &
   {
-    if (is_empty())  { empty_list(); return _failed_; }
+    if (is_empty())  { get_apology( Apology::empty ); return _failed_; }
     return m_head->m_data;
   }
 
@@ -195,11 +192,11 @@ public:
   * @return T&
   */
   [[nodiscard]]
-  constexpr 
+  constexpr
   auto back()
       -> T &
   {
-    if (is_empty())  { empty_list(); return _failed_;}
+    if (is_empty())  { get_apology( Apology::empty ); return _failed_;}
     return m_tail->m_data;
   }
 
@@ -213,7 +210,7 @@ public:
   auto back() const
       -> T
   {
-    if (is_empty())  { empty_list(); return _failed_;}
+    if (is_empty())  { get_apology( Apology::empty ); return _failed_;}
     return m_tail->m_data;
   }
 
@@ -227,7 +224,7 @@ public:
   auto print(const bool order = true, const char delimiter = ' ')
       const -> void
   {
-    if (is_empty())   { empty_list(); return; }
+    if (is_empty())   { get_apology( Apology::empty ); return; }
             if ( order ) {
       for ( auto&& i : *this ) { std::cout << i << ' '; }
       std::cout << delimiter;
@@ -247,25 +244,31 @@ public:
   */
   [[nodiscard]]
  constexpr
-  auto at(const std::size_t& times)
+  auto at(const std::size_t& pos)
       -> auto &
   {
-    if (is_empty()) { empty_list(); return _failed_;}
-    if (times < 0 || times > m_size-1) { empty_list(); return _failed_;}
+    if (is_empty()) { get_apology( Apology::empty ); return _failed_;}
+    if (pos < 0 || pos > m_size-1) {
+      get_apology( Apology::invalid_position );
+      return _failed_;
+    }
     auto it = begin();
-    for (std::size_t i = 0; i < times; ++i) { ++it; }
+    for (std::size_t i = 0; i < pos; ++i) { ++it; }
     return (*it);
   }
 
   [[nodiscard]]
   constexpr
-  auto at(const std::size_t& times) const
+  auto at(const std::size_t& pos) const
       -> auto
   {
-    if (is_empty()) { empty_list(); return _failed_;}
-    if (times < 0 || times > m_size-1) { empty_list(); return _failed_;}
+    if (is_empty()) { get_apology( Apology::empty ); return _failed_;}
+    if (pos < 0 || pos > m_size-1) {
+      get_apology( Apology::invalid_position );
+      return _failed_;
+    }
     auto it = begin();
-    for (std::size_t i = 0; i < times; ++i) { ++it; }
+    for (std::size_t i = 0; i < pos; ++i) { ++it; }
     return (*it);
   }
 
@@ -403,9 +406,9 @@ public:
   auto push_at(const std::size_t pos, const T &arg)
       -> void
   {
-    if (is_empty())       { empty_list(); return; }
+    if (is_empty())       { get_apology( Apology::empty ); return; }
     if (pos < 0 || pos > m_size-1) {
-      std::cerr << "- `pos` does not exist...\n"; return;
+      get_apology( Apology::invalid_position ); return;
     }
     if (pos == 0)                     { push_front(arg); return; }
     /* adding nodes between previous and next */
@@ -432,9 +435,9 @@ public:
   auto push_at(std::size_t &&pos, T &&arg)
       -> void
   {
-    if (is_empty())   { empty_list(); return; }
+    if (is_empty())   { get_apology( Apology::empty ); return; }
     if (pos < 0 || pos > m_size-1) {
-      std::cerr << "- `pos` does not exist...\n"; return;
+      get_apology( Apology::invalid_position ); return;
     }
     if (pos == 0)                 { push_front(arg); return; }
     /* adding nodes between previous and next */
@@ -467,9 +470,9 @@ public:
   auto push_after_at(const std::size_t pos, const T &arg)
       -> void
   {
-    if (is_empty())       { empty_list(); return; }
+    if (is_empty())       { get_apology( Apology::empty ); return; }
     if (pos < 0 || pos > m_size-1) {
-      std::cerr << "- `pos` does not exist...\n"; return;
+      get_apology( Apology::invalid_position ) ; return;
     }
     if (pos == m_size-1) { push_back(arg); return; }
     /* adding nodes between previous and next */
@@ -502,9 +505,9 @@ public:
   auto push_after_at(std::size_t &&pos,  T &&arg)
       -> void
   {
-    if (is_empty())       { empty_list(); return; }
+    if (is_empty())       { get_apology( Apology::empty ); return; }
     if (pos < 0 || pos > m_size-1) {
-      std::cerr << "- `pos` does not exist...\n"; return;
+      get_apology( Apology::invalid_position ); return;
     }
     if (pos == m_size-1)  { push_back(arg); return; }
     /* adding nodes between previous and next */
@@ -536,12 +539,12 @@ public:
   auto push_after_value(T&& after, T&& val)
       -> void
   {
-    if (is_empty()) { empty_list(); return;}
+    if (is_empty()) { get_apology( Apology::empty ); return;}
     if (after == at(m_tail)) { push_back(val); return; }
     sh_ptr it = {m_head};
     while ( at(it) != after) {
       if (it->m_next == nullptr) {
-        std::cerr << "- `value` not found...";
+        get_apology( Apology::not_found );
         return;
       }
       it = it->m_next;
@@ -562,11 +565,14 @@ public:
   auto push_after_value(const T& after, const T& val)
       -> void
   {
-    if (is_empty()) { empty_list(); return;}
+    if (is_empty()) { get_apology( Apology::empty ); return;}
     if (after == at(m_tail)) { push_back(val); return; }
     sh_ptr it = {m_head};
     while ( at(it) != after) {
-      if (it->m_next == nullptr) { std::cerr << "- `value` not found..."; return; }
+      if (it->m_next == nullptr) {
+        get_apology( Apology::not_found );
+        return;
+      }
       it = it->m_next;
     }
     // 1 2 3 4
@@ -590,12 +596,12 @@ public:
   auto push_before_value(T&& before, T&& val)
       -> void
   {
-    if (is_empty()) { empty_list(); return;}
+    if (is_empty()) { get_apology( Apology::empty ); return;}
     if (before == at(m_head)) { push_front(val); return; }
     sh_ptr it = {m_head};
     while ( at(it) != before) {
       if (it->m_next == nullptr) {
-        std::cerr << "- `value` not found...";
+        get_apology( Apology::not_found );
         return;
       }
       it = it->m_next;
@@ -616,12 +622,12 @@ public:
   auto push_before_value(const T& before, const T& val)
       -> void
   {
-    if (is_empty()) { empty_list(); return;}
+    if (is_empty()) { get_apology( Apology::empty ); return;}
     if (before == at(m_head)) { push_front(val); return; }
     sh_ptr it = {m_head};
     while ( at(it) != before) {
       if (it->m_next == nullptr) {
-        std::cerr << "- `value` not found...";
+         get_apology( Apology::not_found );
         return;
       }
       it = it->m_next;
@@ -642,7 +648,7 @@ public:
   auto pop_value(T&& val)
       -> void
   {
-    if ( is_empty() ) { empty_list(); return; }
+    if ( is_empty() ) { get_apology( Apology::empty ); return; }
     //
     auto it = begin();
     std::size_t count {0};
@@ -665,7 +671,7 @@ public:
   auto pop_back()
       -> void
   {
-    if (is_empty())  { empty_list(); return; }
+    if (is_empty())  { get_apology( Apology::empty ); return; }
     if (m_size == 1) { m_head.reset(); return; } // if one node created
     //
     sh_ptr last   = m_tail; //  holding the tail `old tail` to be deleted
@@ -687,7 +693,7 @@ public:
   auto pop_front()
       -> void
   {
-    if (is_empty())   { empty_list(); return; }
+    if (is_empty())   { get_apology( Apology::empty ); return; }
     if (m_size == 1)  { m_head.reset(); return; } // if one node created
     //
     sh_ptr first  = {m_head}; // first points to old head
@@ -706,8 +712,8 @@ public:
   auto pop_at(const std::size_t& pos)
       -> void
   {
-    if (pos < 0 || pos >= m_size) { empty_list(); return; }
-    if (is_empty())               { empty_list(); return; }
+    if (pos < 0 || pos >= m_size) { get_apology( Apology::invalid_position); return; }
+    if (is_empty())               { get_apology( Apology::empty ); return; }
     if (pos == 0)                 { pop_front(); return; }
     else if ( pos == m_size-1)    { pop_back(); return; }
     //
@@ -735,8 +741,8 @@ public:
   auto pop_at(std::size_t&& pos)
       -> void
   {
-    if (pos < 0 || pos >= m_size) { empty_list(); return; }
-    if (is_empty())               { empty_list(); return; }
+    if (pos < 0 || pos >= m_size) { get_apology( Apology::invalid_position); return; }
+    if (is_empty())               { get_apology( Apology::empty ); return; }
     if (pos == 0)                 { pop_front(); return; }
     else if ( pos == m_size-1)    { pop_back(); return; }
     //
@@ -762,7 +768,7 @@ public:
       -> void
   {
     sort();
-    if (is_empty()) { empty_list(); return; }
+    if (is_empty()) { get_apology( Apology::empty ); return; }
     //
     sh_ptr it = m_head;
     while( it->m_next != nullptr ) {
@@ -782,7 +788,7 @@ public:
   */
   auto split(List_<T> &l1, List_<T> &l2) -> void // note: not tes
   {
-    if (is_empty())  { empty_list(); return; }
+    if (is_empty())  { get_apology( Apology::empty ); return; }
     const auto& s   = size();
     sh_ptr      it  = { m_head };
     for (std::size_t i = 0; i < (s/2); ++i, it = it->m_next) {
@@ -801,8 +807,8 @@ public:
   */
   auto merge( List_<T>& l1,  List_<T>& l2) -> void // note: not tested
   {
-    if (l1.is_empty())  { empty_list(); return; }
-    if (l2.is_empty())  { empty_list(); return; }
+    if (l1.is_empty())  { get_apology( Apology::empty ); return; }
+    if (l2.is_empty())  { get_apology( Apology::empty ); return; }
     for ( const auto& i : l1 ) { push_back(i); }
     for ( const auto& i : l2 ) { push_back(i); }
   }
@@ -815,7 +821,7 @@ public:
   auto sort(const bool desc = false) const
       -> void
   {
-    if (is_empty()) { empty_list(); return; }
+    if (is_empty()) { get_apology( Apology::empty ); return; }
     bool sorted   = true;
     sh_ptr curr   = {};
     sh_ptr next   = {};
@@ -858,7 +864,7 @@ public:
   auto is_sorted() const
       -> bool
   {
-    if ( is_empty() )  { empty_list(); return false; }
+    if ( is_empty() )  { get_apology( Apology::empty ); return false; }
     bool check  = false;
     sh_ptr it   = {m_head};
     while ( it->m_next != nullptr ) {
@@ -882,7 +888,7 @@ public:
   auto search(const T &target) const
       -> bool
   {
-    if (is_empty())  { empty_list(); return false; }
+    if (is_empty())  { get_apology( Apology::empty ); return false; }
     for (const auto& i : *this) {
       if ( i == target ) { return true; }
     }
@@ -899,7 +905,7 @@ public:
   auto search(T &&target) const
       -> bool
   {
-    if (is_empty())  { empty_list(); return false; }
+    if (is_empty())  { get_apology( Apology::empty ); return false; }
     for (auto &&i : *this) {
       if ( i == target ) { return true; }
     }
@@ -917,7 +923,7 @@ public:
   auto locate(const T& target) const
       -> std::int64_t
   {
-    if (is_empty())  { empty_list(); return -1; }
+    if (is_empty())  { get_apology( Apology::empty ); return -1; }
     for (std::int64_t j = 0; const auto& i : *this ) {
       if ( i == target ) { return j; }
       ++j;
@@ -936,7 +942,7 @@ public:
   auto locate(T &&target) const
       -> std::int64_t
   {
-    if (is_empty())  { empty_list(); return -1; }
+    if (is_empty())  { get_apology( Apology::empty ); return -1; }
     for (std::int64_t j = 0;  auto &&i : *this ) {
       if ( i == target ) { return j; }
       ++j;
@@ -952,7 +958,7 @@ public:
   auto clear()
       -> void
   {
-    if (is_empty())  { empty_list(); return; }
+    if (is_empty())  { get_apology( Apology::empty ); return; }
     sh_ptr it;
     while ( m_tail != nullptr ) {
       it = m_tail->m_prev;
