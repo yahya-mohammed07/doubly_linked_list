@@ -1,4 +1,4 @@
-# Doubly-linked list
+# Doubly-linked list v0.7.3
 
 ==============
 
