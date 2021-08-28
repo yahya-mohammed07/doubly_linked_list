@@ -24,7 +24,7 @@ class List_
   public:
     T m_data = {};
     std::shared_ptr<Node> m_next = {nullptr};
-    std::shared_ptr<Node> m_prev = {nullptr};
+    Node *m_prev = {nullptr};
   }; // end of class Node
 
 private:
@@ -43,10 +43,12 @@ private:
 
   class iterator {
   private:
-    sh_ptr node_ptr {nullptr};
+    Node *node_ptr {nullptr};
   public:
-    constexpr iterator(const sh_ptr& newPtr)  : node_ptr(newPtr) {}
-    constexpr iterator(sh_ptr&& newPtr)  : node_ptr(newPtr) {}
+    constexpr iterator(const sh_ptr& newPtr)  : node_ptr(newPtr.get()) {}
+    constexpr iterator(sh_ptr&& newPtr)  : node_ptr(newPtr.get()) {}
+    constexpr iterator(const Node *& newPtr)  : node_ptr(newPtr) {}
+    constexpr iterator(Node && newPtr)  : node_ptr(newPtr) {}
     constexpr iterator(const std::nullptr_t newPtr) : node_ptr(newPtr) {}
     //
     constexpr bool operator!=(const iterator& rhs) const {
@@ -58,7 +60,7 @@ private:
     }
     // pre increment
     constexpr iterator operator++() {
-      node_ptr = node_ptr->m_next;
+      node_ptr = node_ptr->m_next.get();
       return *this;
     }
     // pre decrement
@@ -68,7 +70,7 @@ private:
     }
     // post increment
     constexpr iterator operator++(int) {
-      node_ptr = node_ptr->m_next;
+      node_ptr = node_ptr->m_next.get();
       return *this;
     }
   }; // end of class iterator
@@ -84,7 +86,11 @@ public:
   [[nodiscard]] constexpr auto rbegin()  noexcept -> iterator { return iterator(m_tail); }
 
   /* constructors */
-  List_() noexcept = default;
+  constexpr List_() noexcept {
+    m_head    = nullptr;
+    m_tail    = nullptr;
+    m_size    = 0;
+  }
   //
   explicit constexpr List_(List_<T> && rhs) noexcept
     : m_head(nullptr), m_tail(nullptr), m_size(0) {
@@ -182,7 +188,7 @@ public:
   auto front()
       -> T &
   {
-    if (is_empty())  { get_apology( Apology::empty ); return _failed_; }
+    if (is_empty())  { show( Apology::empty ); return _failed_; }
     return m_head->m_data;
   }
 
@@ -196,7 +202,7 @@ public:
   auto back()
       -> T &
   {
-    if (is_empty())  { get_apology( Apology::empty ); return _failed_;}
+    if (is_empty())  { show( Apology::empty ); return _failed_;}
     return m_tail->m_data;
   }
 
@@ -210,7 +216,7 @@ public:
   auto back() const
       -> T
   {
-    if (is_empty())  { get_apology( Apology::empty ); return _failed_;}
+    if (is_empty())  { show( Apology::empty ); return _failed_;}
     return m_tail->m_data;
   }
 
@@ -224,7 +230,7 @@ public:
   auto print(const bool order = true, const char delimiter = ' ')
       const -> void
   {
-    if (is_empty())   { get_apology( Apology::empty ); return; }
+    if (is_empty())   { show( Apology::empty ); return; }
             if ( order ) {
       for ( auto&& i : *this ) { std::cout << i << ' '; }
       std::cout << delimiter;
@@ -247,9 +253,9 @@ public:
   auto at(const std::size_t& pos)
       -> auto &
   {
-    if (is_empty()) { get_apology( Apology::empty ); return _failed_;}
+    if (is_empty()) { show( Apology::empty ); return _failed_;}
     if (pos < 0 || pos > m_size-1) {
-      get_apology( Apology::invalid_position );
+      show( Apology::invalid_position );
       return _failed_;
     }
     auto it = begin();
@@ -262,9 +268,9 @@ public:
   auto at(const std::size_t& pos) const
       -> auto
   {
-    if (is_empty()) { get_apology( Apology::empty ); return _failed_;}
+    if (is_empty()) { show( Apology::empty ); return _failed_;}
     if (pos < 0 || pos > m_size-1) {
-      get_apology( Apology::invalid_position );
+      show( Apology::invalid_position );
       return _failed_;
     }
     auto it = begin();
@@ -296,11 +302,12 @@ public:
     if ( is_empty() )  {
       m_head = new_node; // |null,arg, null|
       m_tail = new_node; // |null,arg, null|
+    } else {
+      m_tail->m_next = new_node; // changes head-> next too, then it changes
+      // the previous temps next
+      // head ->|null,0, 0x1| <-> |0x77,1, 0x3| <-> |0x88,2, null|
+      new_node->m_prev = m_tail.get();
     }
-    m_tail->m_next = new_node; // changes head-> next too, then it changes
-    // the previous temps next
-    // head ->|null,0, 0x1| <-> |0x77,1, 0x3| <-> |0x88,2, null|
-    new_node->m_prev = m_tail;
     m_tail = new_node; // now tail points to temp
     //
     if ( m_head->m_prev != nullptr ) {
@@ -326,11 +333,12 @@ public:
     if ( is_empty() )  {
       m_head = new_node; // |null,arg, null|
       m_tail = new_node; // |null,arg, null|
+    } else {
+      m_tail->m_next = new_node; // changes head-> next too, then it changes
+      // the previous temps next
+      // head ->|null,0, 0x1| <-> |0x77,1, 0x3| <-> |0x88,2, null|
+      new_node->m_prev = m_tail.get();
     }
-    m_tail->m_next = new_node; // changes head-> next too, then it changes
-    // the previous temps next
-    // head ->|null,0, 0x1| <-> |0x77,1, 0x3| <-> |0x88,2, null|
-    new_node->m_prev = m_tail;
     m_tail = new_node; // now tail points to temp
     //
     if ( m_head->m_prev != nullptr ) {
@@ -357,6 +365,7 @@ public:
   auto push_front(const T &arg)
       -> void
   {
+    if ( is_empty() ) { push_back(arg); return; }
     sh_ptr new_node   = allocate_node();
     m_head->m_prev    = new_node; // linking head to old head // head -> |old head, arg, next|
     //
@@ -377,8 +386,9 @@ public:
   auto push_front(T &&arg)
       -> void
   {
+    if ( is_empty() ) { push_back(arg); return; }
     sh_ptr new_node   = allocate_node();
-    m_head->m_prev    = new_node; // linking head to new head // head -> |new head, arg, next|
+    m_head->m_prev    = new_node.get(); // linking head to new head // head -> |new head, arg, next|
     //
     new_node->m_data  = arg;
     new_node->m_next  = m_head;
@@ -406,11 +416,11 @@ public:
   auto push_at(const std::size_t pos, const T &arg)
       -> void
   {
-    if (is_empty())       { get_apology( Apology::empty ); return; }
-    if (pos < 0 || pos > m_size-1) {
-      get_apology( Apology::invalid_position ); return;
+    if (pos < 0 || pos >= m_size) {
+      show( Apology::invalid_position ); return;
     }
-    if (pos == 0)                     { push_front(arg); return; }
+    if (pos == 0)                 { push_front(arg); return; }
+    if (pos == m_size-1)          {push_back(arg); return; }
     /* adding nodes between previous and next */
     sh_ptr prev_node  = nullptr; // hold previous node
     sh_ptr new_node   = allocate_node(); // hold new node
@@ -435,11 +445,11 @@ public:
   auto push_at(std::size_t &&pos, T &&arg)
       -> void
   {
-    if (is_empty())   { get_apology( Apology::empty ); return; }
-    if (pos < 0 || pos > m_size-1) {
-      get_apology( Apology::invalid_position ); return;
+    if (pos < 0 || pos >= m_size) {
+      show( Apology::invalid_position ); return;
     }
     if (pos == 0)                 { push_front(arg); return; }
+    if (pos == m_size-1)          {push_back(arg); return; }
     /* adding nodes between previous and next */
     sh_ptr prev_node  = nullptr; // hold previous node
     sh_ptr new_node   = allocate_node(); // hold new node
@@ -470,11 +480,11 @@ public:
   auto push_after_at(const std::size_t pos, const T &arg)
       -> void
   {
-    if (is_empty())       { get_apology( Apology::empty ); return; }
-    if (pos < 0 || pos > m_size-1) {
-      get_apology( Apology::invalid_position ) ; return;
+    if (pos < 0 || pos >= m_size) {
+      show( Apology::invalid_position ); return;
     }
-    if (pos == m_size-1) { push_back(arg); return; }
+    if (pos == 0)                 { push_front(arg); return; }
+    if (pos == m_size-1)          {push_back(arg); return; }
     /* adding nodes between previous and next */
     sh_ptr prev_node  = nullptr; // hold previous node
     sh_ptr new_node   = allocate_node(); // hold new node
@@ -505,11 +515,11 @@ public:
   auto push_after_at(std::size_t &&pos,  T &&arg)
       -> void
   {
-    if (is_empty())       { get_apology( Apology::empty ); return; }
-    if (pos < 0 || pos > m_size-1) {
-      get_apology( Apology::invalid_position ); return;
+    if (pos < 0 || pos >= m_size) {
+      show( Apology::invalid_position ); return;
     }
-    if (pos == m_size-1)  { push_back(arg); return; }
+    if (pos == 0)                 { push_front(arg); return; }
+    if (pos == m_size-1)          {push_back(arg); return; }
     /* adding nodes between previous and next */
     sh_ptr prev_node  = nullptr; // hold previous node
     sh_ptr new_node   = allocate_node(); // hold new node
@@ -539,12 +549,11 @@ public:
   auto push_after_value(T&& after, T&& val)
       -> void
   {
-    if (is_empty()) { get_apology( Apology::empty ); return;}
     if (after == at(m_tail)) { push_back(val); return; }
     sh_ptr it = {m_head};
     while ( at(it) != after) {
       if (it->m_next == nullptr) {
-        get_apology( Apology::not_found );
+        show( Apology::not_found );
         return;
       }
       it = it->m_next;
@@ -565,12 +574,11 @@ public:
   auto push_after_value(const T& after, const T& val)
       -> void
   {
-    if (is_empty()) { get_apology( Apology::empty ); return;}
     if (after == at(m_tail)) { push_back(val); return; }
     sh_ptr it = {m_head};
     while ( at(it) != after) {
       if (it->m_next == nullptr) {
-        get_apology( Apology::not_found );
+        show( Apology::not_found );
         return;
       }
       it = it->m_next;
@@ -596,12 +604,11 @@ public:
   auto push_before_value(T&& before, T&& val)
       -> void
   {
-    if (is_empty()) { get_apology( Apology::empty ); return;}
     if (before == at(m_head)) { push_front(val); return; }
     sh_ptr it = {m_head};
     while ( at(it) != before) {
       if (it->m_next == nullptr) {
-        get_apology( Apology::not_found );
+        show( Apology::not_found );
         return;
       }
       it = it->m_next;
@@ -622,12 +629,11 @@ public:
   auto push_before_value(const T& before, const T& val)
       -> void
   {
-    if (is_empty()) { get_apology( Apology::empty ); return;}
     if (before == at(m_head)) { push_front(val); return; }
     sh_ptr it = {m_head};
     while ( at(it) != before) {
       if (it->m_next == nullptr) {
-         get_apology( Apology::not_found );
+         show( Apology::not_found );
         return;
       }
       it = it->m_next;
@@ -648,7 +654,7 @@ public:
   auto pop_value(T&& val)
       -> void
   {
-    if ( is_empty() ) { get_apology( Apology::empty ); return; }
+    if ( is_empty() ) { show( Apology::empty ); return; }
     //
     auto it = begin();
     std::size_t count {0};
@@ -671,7 +677,7 @@ public:
   auto pop_back()
       -> void
   {
-    if (is_empty())  { get_apology( Apology::empty ); return; }
+    if (is_empty())  { show( Apology::empty ); return; }
     if (m_size == 1) { m_head.reset(); return; } // if one node created
     //
     sh_ptr last   = m_tail; //  holding the tail `old tail` to be deleted
@@ -693,7 +699,7 @@ public:
   auto pop_front()
       -> void
   {
-    if (is_empty())   { get_apology( Apology::empty ); return; }
+    if (is_empty())   { show( Apology::empty ); return; }
     if (m_size == 1)  { m_head.reset(); return; } // if one node created
     //
     sh_ptr first  = {m_head}; // first points to old head
@@ -712,8 +718,8 @@ public:
   auto pop_at(const std::size_t& pos)
       -> void
   {
-    if (pos < 0 || pos >= m_size) { get_apology( Apology::invalid_position); return; }
-    if (is_empty())               { get_apology( Apology::empty ); return; }
+    if (pos < 0 || pos >= m_size) { show( Apology::invalid_position); return; }
+    if (is_empty())               { show( Apology::empty ); return; }
     if (pos == 0)                 { pop_front(); return; }
     else if ( pos == m_size-1)    { pop_back(); return; }
     //
@@ -741,8 +747,8 @@ public:
   auto pop_at(std::size_t&& pos)
       -> void
   {
-    if (pos < 0 || pos >= m_size) { get_apology( Apology::invalid_position); return; }
-    if (is_empty())               { get_apology( Apology::empty ); return; }
+    if (pos < 0 || pos >= m_size) { show( Apology::invalid_position); return; }
+    if (is_empty())               { show( Apology::empty ); return; }
     if (pos == 0)                 { pop_front(); return; }
     else if ( pos == m_size-1)    { pop_back(); return; }
     //
@@ -768,7 +774,7 @@ public:
       -> void
   {
     sort();
-    if (is_empty()) { get_apology( Apology::empty ); return; }
+    if (is_empty()) { show( Apology::empty ); return; }
     //
     sh_ptr it = m_head;
     while( it->m_next != nullptr ) {
@@ -788,7 +794,7 @@ public:
   */
   auto split(List_<T> &l1, List_<T> &l2) -> void // note: not tes
   {
-    if (is_empty())  { get_apology( Apology::empty ); return; }
+    if (is_empty())  { show( Apology::empty ); return; }
     const auto& s   = size();
     sh_ptr      it  = { m_head };
     for (std::size_t i = 0; i < (s/2); ++i, it = it->m_next) {
@@ -807,8 +813,8 @@ public:
   */
   auto merge( List_<T>& l1,  List_<T>& l2) -> void // note: not tested
   {
-    if (l1.is_empty())  { get_apology( Apology::empty ); return; }
-    if (l2.is_empty())  { get_apology( Apology::empty ); return; }
+    if (l1.is_empty())  { show( Apology::empty ); return; }
+    if (l2.is_empty())  { show( Apology::empty ); return; }
     for ( const auto& i : l1 ) { push_back(i); }
     for ( const auto& i : l2 ) { push_back(i); }
   }
@@ -821,7 +827,7 @@ public:
   auto sort(const bool desc = false) const
       -> void
   {
-    if (is_empty()) { get_apology( Apology::empty ); return; }
+    if (is_empty()) { show( Apology::empty ); return; }
     bool sorted   = true;
     sh_ptr curr   = {};
     sh_ptr next   = {};
@@ -864,7 +870,7 @@ public:
   auto is_sorted() const
       -> bool
   {
-    if ( is_empty() )  { get_apology( Apology::empty ); return false; }
+    if ( is_empty() )  { show( Apology::empty ); return false; }
     bool check  = false;
     sh_ptr it   = {m_head};
     while ( it->m_next != nullptr ) {
@@ -888,7 +894,7 @@ public:
   auto search(const T &target) const
       -> bool
   {
-    if (is_empty())  { get_apology( Apology::empty ); return false; }
+    if (is_empty())  { show( Apology::empty ); return false; }
     for (const auto& i : *this) {
       if ( i == target ) { return true; }
     }
@@ -905,7 +911,7 @@ public:
   auto search(T &&target) const
       -> bool
   {
-    if (is_empty())  { get_apology( Apology::empty ); return false; }
+    if (is_empty())  { show( Apology::empty ); return false; }
     for (auto &&i : *this) {
       if ( i == target ) { return true; }
     }
@@ -923,7 +929,7 @@ public:
   auto locate(const T& target) const
       -> std::int64_t
   {
-    if (is_empty())  { get_apology( Apology::empty ); return -1; }
+    if (is_empty())  { show( Apology::empty ); return -1; }
     for (std::int64_t j = 0; const auto& i : *this ) {
       if ( i == target ) { return j; }
       ++j;
@@ -942,7 +948,7 @@ public:
   auto locate(T &&target) const
       -> std::int64_t
   {
-    if (is_empty())  { get_apology( Apology::empty ); return -1; }
+    if (is_empty())  { show( Apology::empty ); return -1; }
     for (std::int64_t j = 0;  auto &&i : *this ) {
       if ( i == target ) { return j; }
       ++j;
@@ -958,19 +964,14 @@ public:
   auto clear()
       -> void
   {
-    if (is_empty())  { get_apology( Apology::empty ); return; }
-    sh_ptr it;
+    if (is_empty())  { show( Apology::empty ); return; }
+    Node *it;
     while ( m_tail != nullptr ) {
       it = m_tail->m_prev;
       m_tail->m_next = nullptr;
       m_tail->m_prev = nullptr;
-      m_tail = it;
+      m_tail = sh_ptr(it);
     }
-  }
-  //
-  constexpr
-  ~List_() {
-    clear();
   }
 }; // end of class List_<T>
 
